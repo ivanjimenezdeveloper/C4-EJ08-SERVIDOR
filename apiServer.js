@@ -37,7 +37,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res, next) => {
-  res.send("tamo activo");
+  res.json({ mensaje: "tamo activo" });
 });
 
 app.use((err, req, res, next) => {

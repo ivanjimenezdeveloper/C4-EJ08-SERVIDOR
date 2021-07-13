@@ -5,7 +5,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
 const app = express();
-const puerto = 4000;
+const puerto = process.env.PORT || 4000;
 
 app.listen(puerto, () => console.log(`Api levantada en ${puerto}`));
 

@@ -20,6 +20,8 @@ const conectarBD = async () => {
       return true;
     }
   );
+
+  return true;
 };
 
 module.exports = { conectarBD };

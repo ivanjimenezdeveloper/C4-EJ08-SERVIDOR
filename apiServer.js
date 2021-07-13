@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const { loginUsuario } = require("./db/controllers/user");
+const { itemsPorUserId } = require("./db/controllers/items");
 
 const app = express();
 const puerto = process.env.PORT || 4000;
@@ -19,13 +20,17 @@ const authMiddleware = (req, res, next) => {
   const token = req.header("Authorization").split(" ")[1];
   try {
     const datosToken = jwt.verify(token, process.env.JWT_SECRET);
-    const { id } = datosToken;
+    const id = datosToken.usuario._id;
     req.idUsuario = id;
     next();
   } catch (e) {
     // Token incorrecto
     if (e.message.includes("expired")) {
       const nuevoError = new Error("Token caducado");
+      nuevoError.codigo = 403;
+      return next(nuevoError);
+    } else {
+      const nuevoError = new Error("Token erroeno");
       nuevoError.codigo = 403;
       return next(nuevoError);
     }
@@ -63,10 +68,10 @@ app.put("/usuarios/login", async (req, res, next) => {
   }
 });
 
-app.get("/items/listado", authMiddleware, (req, res, next) => {
-  const { token } = req.query;
-  console.log(token);
-  res.json({ mensaje: "has llegao" });
+app.get("/items/listado", authMiddleware, async (req, res, next) => {
+  const id = req.idUsuario;
+  const items = await itemsPorUserId(id);
+  res.json(items);
 });
 
 app.use((err, req, res, next) => {

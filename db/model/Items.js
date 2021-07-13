@@ -5,7 +5,7 @@ const ItemsSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  items: {
+  objetos: {
     type: [String],
   },
 });

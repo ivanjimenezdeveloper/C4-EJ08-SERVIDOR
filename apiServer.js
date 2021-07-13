@@ -3,6 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const { loginUsuario } = require("./db/controllers/user");
 
 const app = express();
 const puerto = process.env.PORT || 4000;
@@ -38,6 +39,34 @@ app.use(express.json());
 
 app.get("/", (req, res, next) => {
   res.json({ mensaje: "tamo activo" });
+});
+
+app.put("/usuarios/login", async (req, res, next) => {
+  const { user, pass } = req.body;
+
+  const resultadoUsuario = await loginUsuario(user, pass);
+
+  if (!resultadoUsuario) {
+    const err = new Error("el nombre de usuario o contraseña no coincide");
+    err.codigo = 400;
+    next(err);
+  } else {
+    const token = jwt.sign(
+      { usuario: resultadoUsuario },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "10m",
+      }
+    );
+
+    res.json({ token });
+  }
+});
+
+app.get("/items/listado", authMiddleware, (req, res, next) => {
+  const { token } = req.query;
+  console.log(token);
+  res.json({ mensaje: "has llegao" });
 });
 
 app.use((err, req, res, next) => {
